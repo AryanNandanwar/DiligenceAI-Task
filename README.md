@@ -2,6 +2,48 @@
 
 An AI-native solution that makes an e-commerce operations team independent of engineering for the **Order-to-Cash (O2C)** process. Instead of filing tickets, ops speaks to an AI agent (any MCP client — Claude Desktop, Cursor, etc.), which diagnoses and fixes issues through a set of safe, audited tools.
 
+## Hosted MCP (for reviewers)
+
+| | |
+|---|---|
+| **MCP URL** | `https://parish-standards-book-cod.trycloudflare.com/mcp` |
+| **Health** | `https://parish-standards-book-cod.trycloudflare.com/health` |
+| **Transport** | Streamable HTTP (stateless) |
+
+This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockerized MCP server. Keep `docker compose up -d` and `./scripts/start-tunnel.sh` running while reviewers test (the `*.trycloudflare.com` hostname is ephemeral and changes if the tunnel restarts).
+
+**Cursor** (project `.cursor/mcp.json` is already pointed at the hosted URL):
+
+```json
+{
+  "mcpServers": {
+    "o2c-ops": {
+      "url": "https://parish-standards-book-cod.trycloudflare.com/mcp"
+    }
+  }
+}
+```
+
+Smoke / workflow checks against the host:
+
+```bash
+curl https://parish-standards-book-cod.trycloudflare.com/health
+MCP_URL=https://parish-standards-book-cod.trycloudflare.com ./scripts/verify-workflow.sh
+```
+
+### Longer-lived alternative (Render Blueprint)
+
+`render.yaml` defines `o2c-backend`, `o2c-mcp`, and Postgres. In [Render](https://render.com): **New → Blueprint →** connect this repo. After deploy, replace the tunnel URL above with `https://<o2c-mcp-service>.onrender.com/mcp`. Free web services cold-start; Postgres plan availability varies — see `PRODUCT.md`.
+
+## Submission docs
+
+| Doc | Contents |
+|---|---|
+| [`PRODUCT.md`](./PRODUCT.md) | Decisions, assumptions, exclusions, safety, tradeoffs |
+| [`AI_WORKLOG.md`](./AI_WORKLOG.md) | Models, prompts, human/AI split, corrections, verification |
+| [`DEMO.md`](./DEMO.md) | 4–5 minute async video checklist |
+| [`scripts/verify-workflow.sh`](./scripts/verify-workflow.sh) | Focused runtime verification |
+
 ## Architecture
 
 ```mermaid
@@ -18,7 +60,7 @@ flowchart LR
 | `mcp-server/` | TypeScript, `@modelcontextprotocol/sdk` (Streamable HTTP, stateless) | 3001 |
 | `postgres` | PostgreSQL 16 (Docker) | 5433 (host) |
 
-## Quick start
+## Quick start (local)
 
 Requires Docker (with Compose).
 
@@ -28,38 +70,35 @@ docker compose up -d --build
 
 This starts Postgres, the backend (which auto-creates the schema and seeds demo data, including intentionally broken orders), and the MCP server.
 
-Smoke test:
+Smoke test + focused verification:
 
 ```bash
 curl http://localhost:3000/health          # backend
 curl http://localhost:3001/health          # MCP server
 curl http://localhost:3000/ops/summary     # should report 7 issues needing attention
+./scripts/verify-workflow.sh               # core workflow checks
 ```
 
-## Connect your AI agent
+Publish a fresh public URL (updates the hostname — also update README / `.cursor/mcp.json`):
 
-The MCP server speaks Streamable HTTP at `http://localhost:3001/mcp`.
-
-**Cursor** — add to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
-
-```json
-{
-  "mcpServers": {
-    "o2c-ops": {
-      "url": "http://localhost:3001/mcp"
-    }
-  }
-}
+```bash
+./scripts/start-tunnel.sh
 ```
 
-**Claude Desktop** — Settings → Connectors → Add custom connector, with URL `http://localhost:3001/mcp` (or use `mcp-remote` in `claude_desktop_config.json`):
+## Connect your AI agent (local)
+
+The MCP server speaks Streamable HTTP at `http://localhost:3001/mcp` (or the hosted URL above).
+
+**Cursor** — project `.cursor/mcp.json` or `~/.cursor/mcp.json`.
+
+**Claude Desktop** — Settings → Connectors → Add custom connector, or:
 
 ```json
 {
   "mcpServers": {
     "o2c-ops": {
       "command": "npx",
-      "args": ["mcp-remote", "http://localhost:3001/mcp"]
+      "args": ["mcp-remote", "https://parish-standards-book-cod.trycloudflare.com/mcp"]
     }
   }
 }
@@ -156,21 +195,14 @@ cd mcp-server && npm install && npm run build && BACKEND_URL=http://localhost:30
 ## Project structure
 
 ```
-backend/
-  src/
-    entities/     # Customer, Product, Order, OrderItem, Payment, Refund, Shipment, Invoice, AuditLog
-    orders/       # search, timeline, cancel, guarded force-status
-    payments/     # retry, gateway reconcile, refunds
-    inventory/    # stock, adjustments, reservation release/reconcile
-    shipments/    # create, tracking, delivered
-    invoices/     # generate, void + regenerate
-    ops/          # diagnose rules engine, health summary
-    audit/        # immutable audit log (global module)
-    seed/         # idempotent demo data incl. broken scenarios
-mcp-server/
-  src/
-    index.ts      # Express + stateless Streamable HTTP transport
-    tools.ts      # 19 MCP tool definitions (zod schemas)
-    api.ts        # thin REST client for the backend
+backend/          # NestJS + TypeORM + PostgreSQL
+mcp-server/       # Streamable HTTP MCP (19 tools)
+scripts/
+  verify-workflow.sh   # focused runtime verification
+  start-tunnel.sh      # public HTTPS tunnel for MCP
+PRODUCT.md        # decisions, assumptions, exclusions
+AI_WORKLOG.md     # AI tools, corrections, verification
+DEMO.md           # async video checklist
+render.yaml       # optional durable Render Blueprint
 docker-compose.yml
 ```

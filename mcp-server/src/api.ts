@@ -1,4 +1,11 @@
-const BASE_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
+function resolveBackendUrl(): string {
+  const raw = process.env.BACKEND_URL ?? 'http://localhost:3000';
+  // Render blueprint `fromService.property: host` returns a hostname without scheme.
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/\/$/, '');
+  return `https://${raw.replace(/\/$/, '')}`;
+}
+
+const BASE_URL = resolveBackendUrl();
 
 export class ApiError extends Error {}
 

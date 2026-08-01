@@ -35,7 +35,7 @@ export class OpsService {
   async diagnose(orderKey: string) {
     const order = await this.orders.findByKey(orderKey);
     const invoice = await this.invoiceRepo.findOne({
-      where: { order: { id: order.id }, status: InvoiceStatus.ISSUED },
+      where: { orderId: order.id, status: InvoiceStatus.ISSUED },
     });
     const issues: DiagnosedIssue[] = [];
     const ageHours = (Date.now() - new Date(order.updatedAt).getTime()) / 3_600_000;
@@ -192,7 +192,7 @@ export class OpsService {
     });
     const activeInvoices = await this.invoiceRepo.find({
       where: { status: InvoiceStatus.ISSUED },
-      relations: { order: true },
+      relations: ['order'],
     });
     const invoicedOrderIds = new Set(activeInvoices.map((i) => i.order.id));
     const missingInvoices = deliveredOrders.filter((o) => !invoicedOrderIds.has(o.id));
@@ -202,7 +202,7 @@ export class OpsService {
 
     const pendingRefunds = await this.refundRepo.find({
       where: { status: RefundStatus.PENDING },
-      relations: { payment: { order: true } },
+      relations: ['payment', 'payment.order'],
     });
 
     const inventoryRecon = await this.inventory.reconcileReservations();

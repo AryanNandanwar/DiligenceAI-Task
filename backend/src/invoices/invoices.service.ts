@@ -93,7 +93,7 @@ export class InvoicesService {
 
   private async activeInvoice(orderId: string): Promise<Invoice | null> {
     return this.invoiceRepo.findOne({
-      where: { order: { id: orderId }, status: InvoiceStatus.ISSUED },
+      where: { orderId, status: InvoiceStatus.ISSUED },
     });
   }
 

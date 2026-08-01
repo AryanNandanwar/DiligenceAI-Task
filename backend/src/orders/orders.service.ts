@@ -43,7 +43,7 @@ export class OrdersService {
   async getDetail(key: string) {
     const order = await this.findByKey(key);
     const invoice = await this.invoiceRepo.findOne({
-      where: { order: { id: order.id } },
+      where: { orderId: order.id },
       order: { issuedAt: 'DESC' },
     });
     const auditTrail = await this.audit.query({ orderId: order.id, limit: 50 });

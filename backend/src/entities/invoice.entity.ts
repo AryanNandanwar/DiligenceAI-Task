@@ -19,8 +19,11 @@ export class Invoice {
   invoiceNumber: string;
 
   @ManyToOne(() => Order, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'orderId' })
   order: Order;
+
+  @Column('uuid')
+  orderId: string;
 
   @Column('numeric', { precision: 12, scale: 2, transformer: numericTransformer })
   amount: number;
