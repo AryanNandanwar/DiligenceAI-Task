@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "ES2022",
+    "moduleResolution": "nodenext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": false,
+    "sourceMap": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "o2c-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server exposing Order-to-Cash ops tools",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "express": "^5.2.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: o2c
+      POSTGRES_PASSWORD: o2c
+      POSTGRES_DB: o2c
+    ports:
+      # Host port 5433 to avoid clashing with a locally installed Postgres.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U o2c -d o2c"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: o2c
+      DB_PASSWORD: o2c
+      DB_NAME: o2c
+      PORT: "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mcp-server:
+    build: ./mcp-server
+    environment:
+      BACKEND_URL: http://backend:3000
+      PORT: "3001"
+    ports:
+      - "3001:3001"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
