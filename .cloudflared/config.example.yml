@@ -1,0 +1,10 @@
+# Copy/fill via: ./scripts/setup-named-tunnel.sh <hostname>
+# Do not commit real config.yml or credential JSON files.
+
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: REPLACE_WITH_ABSOLUTE_PATH_TO_CREDENTIALS_JSON
+
+ingress:
+  - hostname: mcp.example.com
+    service: http://localhost:3001
+  - service: http_status:404

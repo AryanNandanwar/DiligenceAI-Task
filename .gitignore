@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.log
 .env
+
+# Cloudflare named tunnel (credentials + generated config)
+.cloudflared/config.yml
+.cloudflared/hostname
+.cloudflared/*.json
+)

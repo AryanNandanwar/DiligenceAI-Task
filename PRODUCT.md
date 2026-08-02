@@ -21,7 +21,7 @@ Seeded demo orders: `ORD-1101` … `ORD-1107` (see README).
 - Payment gateway behavior is simulated (deterministic retry / reconcile markers in seed data).
 - Synthetic catalog/customers/orders only — no real PII or production credentials.
 - Write actions are trusted within the demo perimeter; auth/RBAC is out of scope for this week’s slice.
-- “Remote hosting” for review can be (a) Cloudflare quick tunnel over the local Docker stack, or (b) Render Blueprint (`render.yaml`) for a longer-lived deploy.
+- “Remote hosting” for review prefers Render Blueprint (`render.yaml`) for a fixed free URL; Cloudflare named/quick tunnels remain local fallbacks.
 
 ## Exclusions (intentional)
 
@@ -47,13 +47,13 @@ Seeded demo orders: `ORD-1101` … `ORD-1107` (see README).
 | MCP-only (no chat UI) | Matches assignment (“don’t overbuild frontend”); MCP stays central | Reviewers need an MCP client or the verify script |
 | NestJS + TypeORM `synchronize` | Fast iteration for demo schema | Not production migration hygiene |
 | Stateless Streamable HTTP MCP | Easy to host / tunnel; works with Cursor URL connectors | No long-lived SSE sessions |
-| Cloudflare quick tunnel default | HTTPS public URL in minutes, no cloud account | Ephemeral hostname; laptop + Docker must stay up |
-| Render Blueprint alternative | Durable URL without your laptop | Free tier cold starts; Postgres plan may require a paid/free-tier change |
+| Render Blueprint (preferred remote) | Fixed `*.onrender.com` URL; no domain; laptop optional | Free web cold starts; free Postgres expires in 30 days |
+| Cloudflare named tunnel | Fixed hostname; Docker stays local | Needs Cloudflare zone/domain; laptop must stay up |
+| Cloudflare quick tunnel fallback | HTTPS in minutes, no domain | Ephemeral hostname on each restart |
 | ~19 tools covering full O2C exceptions | Coherent ops independence story | Broader than a single-scenario slice |
 
 ## Next steps (if continuing)
 
-- Persist hosting on Render/Railway with a stable custom domain
 - Add light auth (shared bearer) on MCP + backend for the public URL
 - Approval gates for high-risk actions (refunds above threshold, force-status)
 - Replace simulated gateway with sandbox Stripe/Razorpay

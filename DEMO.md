@@ -5,8 +5,8 @@ Record with Loom / OBS. Speak naturally; use the lines below as a teleprompter, 
 ## Before you hit Record
 
 1. Fresh demo data: `docker compose down -v && docker compose up -d`
-2. Tunnel running: `./scripts/start-tunnel.sh` (or keep the existing one)
-3. Confirm: `curl https://<your-tunnel>/health` → ok
+2. Render Blueprint deployed (`o2c-mcp` live), or local tunnel: `./scripts/start-tunnel.sh`
+3. Confirm: `curl https://<o2c-mcp>.onrender.com/health` → ok (allow cold start)
 4. Cursor → MCP panel: `o2c-ops` green, URL is the **hosted** `…/mcp` (not localhost)
 5. Open three tabs ready to switch:
    - README (architecture + hosted URL)
@@ -93,7 +93,7 @@ If it calls reconcile and marks the order paid from the gateway record, that’s
 
 **[Screen: flash PRODUCT.md headings, then terminal with health + verify]**
 
-To close: assumptions and exclusions are in PRODUCT.md — no frontend, no real payment gateway, no auth for this slice. Hosting for review is a public Cloudflare tunnel in front of Docker; there’s also a Render blueprint if you want a longer-lived URL.
+To close: assumptions and exclusions are in PRODUCT.md — no frontend, no real payment gateway, no auth for this slice. Hosting for review is Render (`*.onrender.com`); Cloudflare tunnels remain a local fallback.
 
 I verified the important path with a focused script — health, summary, diagnose, MCP initialize, a write path, and audit — against both localhost and the hosted URL.
 

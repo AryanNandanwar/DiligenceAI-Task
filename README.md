@@ -4,36 +4,50 @@ An AI-native solution that makes an e-commerce operations team independent of en
 
 ## Hosted MCP (for reviewers)
 
+Preferred: **Render Blueprint** (`render.yaml`) — fixed `*.onrender.com` URL, no domain purchase, laptop does not need to stay online.
+
+1. Push this repo to GitHub (already: `AryanNandanwar/DiligenceAI-Task`).
+2. In [Render](https://dashboard.render.com): **New → Blueprint** → connect that repo → apply.
+3. Wait until `o2c-db`, `o2c-backend`, and `o2c-mcp` are live.
+4. Point clients at the MCP service URL (name may get a suffix if taken):
+
+```bash
+# Replace with your real o2c-mcp URL from the Render dashboard
+./scripts/use-render-url.sh https://o2c-mcp.onrender.com
+```
+
 | | |
 |---|---|
-| **MCP URL** | `https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp` |
-| **Health** | `https://outline-breakdown-receiving-rendered.trycloudflare.com/health` |
+| **MCP URL** | `https://o2c-mcp.onrender.com/mcp` |
+| **Health** | `https://o2c-mcp.onrender.com/health` |
 | **Transport** | Streamable HTTP (stateless) |
 
-This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockerized MCP server. Keep `docker compose up -d` and `./scripts/start-tunnel.sh` running while reviewers test. The hostname is ephemeral; `start-tunnel.sh` rewrites `.cursor/mcp.json` and the tunnel URLs in this README whenever cloudflared issues a new one.
+Free web services **cold-start** after ~15 minutes idle (first request can take ~30–60s). Free Postgres expires after **30 days** (one free DB per workspace).
 
-**Cursor** (project `.cursor/mcp.json` is already pointed at the hosted URL):
+**Cursor** (after `use-render-url.sh`):
 
 ```json
 {
   "mcpServers": {
     "o2c-ops": {
-      "url": "https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp"
+      "url": "https://o2c-mcp.onrender.com/mcp"
     }
   }
 }
 ```
 
-Smoke / workflow checks against the host:
+Smoke / workflow checks (allow time for cold start):
 
 ```bash
-curl https://outline-breakdown-receiving-rendered.trycloudflare.com/health
-MCP_URL=https://outline-breakdown-receiving-rendered.trycloudflare.com ./scripts/verify-workflow.sh
+curl https://o2c-mcp.onrender.com/health
+MCP_URL=https://o2c-mcp.onrender.com ./scripts/verify-workflow.sh
 ```
 
-### Longer-lived alternative (Render Blueprint)
+### Local / tunnel fallbacks
 
-`render.yaml` defines `o2c-backend`, `o2c-mcp`, and Postgres. In [Render](https://render.com): **New → Blueprint →** connect this repo. After deploy, replace the tunnel URL above with `https://<o2c-mcp-service>.onrender.com/mcp`. Free web services cold-start; Postgres plan availability varies — see `PRODUCT.md`.
+- **Docker only:** `docker compose up -d` → `http://localhost:3001/mcp`
+- **Cloudflare quick tunnel** (ephemeral): `./scripts/start-tunnel.sh`
+- **Cloudflare named tunnel** (fixed hostname, needs your domain): `./scripts/setup-named-tunnel.sh mcp.yourdomain.com`
 
 ## Submission docs
 
@@ -79,11 +93,13 @@ curl http://localhost:3000/ops/summary     # should report 7 issues needing atte
 ./scripts/verify-workflow.sh               # core workflow checks
 ```
 
-Publish a fresh public URL (auto-updates README + `.cursor/mcp.json`):
+Publish a public URL (named tunnel if configured, otherwise quick tunnel):
 
 ```bash
+./scripts/setup-named-tunnel.sh mcp.yourdomain.com   # one-time, fixed hostname
 ./scripts/start-tunnel.sh
 ```
+
 
 ## Connect your AI agent (local)
 
@@ -98,7 +114,7 @@ The MCP server speaks Streamable HTTP at `http://localhost:3001/mcp` (or the hos
   "mcpServers": {
     "o2c-ops": {
       "command": "npx",
-      "args": ["mcp-remote", "https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp"]
+      "args": ["mcp-remote", "https://mcp.yourdomain.com/mcp"]
     }
   }
 }
@@ -198,11 +214,15 @@ cd mcp-server && npm install && npm run build && BACKEND_URL=http://localhost:30
 backend/          # NestJS + TypeORM + PostgreSQL
 mcp-server/       # Streamable HTTP MCP (19 tools)
 scripts/
-  verify-workflow.sh   # focused runtime verification
-  start-tunnel.sh      # public HTTPS tunnel for MCP
+  verify-workflow.sh      # focused runtime verification
+  use-render-url.sh       # point mcp.json + README at Render MCP URL
+  setup-named-tunnel.sh   # optional Cloudflare named tunnel
+  start-tunnel.sh         # optional local Cloudflare tunnel
+.cloudflared/
+  config.example.yml      # named-tunnel config shape (real config is gitignored)
 PRODUCT.md        # decisions, assumptions, exclusions
 AI_WORKLOG.md     # AI tools, corrections, verification
 DEMO.md           # async video checklist
-render.yaml       # optional durable Render Blueprint
+render.yaml       # Render Blueprint (preferred hosted deploy)
 docker-compose.yml
 ```

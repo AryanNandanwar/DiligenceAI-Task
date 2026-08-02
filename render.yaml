@@ -1,6 +1,8 @@
-# Durable hosted deploy (optional alternative to the Cloudflare tunnel).
-# In the Render dashboard: New → Blueprint → connect this repo.
+# Preferred hosted deploy for reviewers (fixed *.onrender.com URL).
+# Dashboard: New → Blueprint → connect this repo → Apply.
 # Free web services spin down when idle; first request may take ~30–60s.
+# Free Postgres: 1 per workspace, expires after 30 days.
+# After deploy: ./scripts/use-render-url.sh https://<o2c-mcp>.onrender.com
 services:
   - type: web
     name: o2c-backend
