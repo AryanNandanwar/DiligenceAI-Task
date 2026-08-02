@@ -6,11 +6,11 @@ An AI-native solution that makes an e-commerce operations team independent of en
 
 | | |
 |---|---|
-| **MCP URL** | `https://parish-standards-book-cod.trycloudflare.com/mcp` |
-| **Health** | `https://parish-standards-book-cod.trycloudflare.com/health` |
+| **MCP URL** | `https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp` |
+| **Health** | `https://outline-breakdown-receiving-rendered.trycloudflare.com/health` |
 | **Transport** | Streamable HTTP (stateless) |
 
-This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockerized MCP server. Keep `docker compose up -d` and `./scripts/start-tunnel.sh` running while reviewers test (the `*.trycloudflare.com` hostname is ephemeral and changes if the tunnel restarts).
+This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockerized MCP server. Keep `docker compose up -d` and `./scripts/start-tunnel.sh` running while reviewers test. The hostname is ephemeral; `start-tunnel.sh` rewrites `.cursor/mcp.json` and the tunnel URLs in this README whenever cloudflared issues a new one.
 
 **Cursor** (project `.cursor/mcp.json` is already pointed at the hosted URL):
 
@@ -18,7 +18,7 @@ This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockeriz
 {
   "mcpServers": {
     "o2c-ops": {
-      "url": "https://parish-standards-book-cod.trycloudflare.com/mcp"
+      "url": "https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp"
     }
   }
 }
@@ -27,8 +27,8 @@ This public HTTPS endpoint is a Cloudflare quick tunnel in front of the Dockeriz
 Smoke / workflow checks against the host:
 
 ```bash
-curl https://parish-standards-book-cod.trycloudflare.com/health
-MCP_URL=https://parish-standards-book-cod.trycloudflare.com ./scripts/verify-workflow.sh
+curl https://outline-breakdown-receiving-rendered.trycloudflare.com/health
+MCP_URL=https://outline-breakdown-receiving-rendered.trycloudflare.com ./scripts/verify-workflow.sh
 ```
 
 ### Longer-lived alternative (Render Blueprint)
@@ -79,7 +79,7 @@ curl http://localhost:3000/ops/summary     # should report 7 issues needing atte
 ./scripts/verify-workflow.sh               # core workflow checks
 ```
 
-Publish a fresh public URL (updates the hostname — also update README / `.cursor/mcp.json`):
+Publish a fresh public URL (auto-updates README + `.cursor/mcp.json`):
 
 ```bash
 ./scripts/start-tunnel.sh
@@ -98,7 +98,7 @@ The MCP server speaks Streamable HTTP at `http://localhost:3001/mcp` (or the hos
   "mcpServers": {
     "o2c-ops": {
       "command": "npx",
-      "args": ["mcp-remote", "https://parish-standards-book-cod.trycloudflare.com/mcp"]
+      "args": ["mcp-remote", "https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp"]
     }
   }
 }
