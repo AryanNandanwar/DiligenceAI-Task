@@ -2,17 +2,28 @@
 
 Record with Loom / OBS. Speak naturally; use the lines below as a teleprompter, not a rigid recital.
 
+**Hosted endpoints (live):**
+
+| | |
+|---|---|
+| **MCP** | `https://o2c-mcp.onrender.com/mcp` |
+| **Health** | `https://o2c-mcp.onrender.com/health` |
+| **Backend** | `https://o2c-backend-idlu.onrender.com` |
+
 ## Before you hit Record
 
-1. Fresh demo data: `docker compose down -v && docker compose up -d`
-2. Render Blueprint deployed (`o2c-mcp` live), or local tunnel: `./scripts/start-tunnel.sh`
-3. Confirm: `curl https://<o2c-mcp>.onrender.com/health` → ok (allow cold start)
-4. Cursor → MCP panel: `o2c-ops` green, URL is the **hosted** `…/mcp` (not localhost)
-5. Open three tabs ready to switch:
-   - README (architecture + hosted URL)
+1. Wake Render (cold start can take ~30–60s):
+   ```bash
+   curl https://o2c-mcp.onrender.com/health
+   curl https://o2c-backend-idlu.onrender.com/health
+   ```
+   Both should return `"status":"ok"`. Optional: `MCP_URL=https://o2c-mcp.onrender.com ./scripts/verify-workflow.sh`
+2. Cursor → Settings → Tools & MCP: `o2c-ops` **green**, URL = `https://o2c-mcp.onrender.com/mcp` (not localhost). Reload MCP if needed.
+3. Open three tabs ready to switch:
+   - README (architecture + Hosted MCP URL)
    - Cursor Agent chat (empty)
    - Terminal (for a quick health/`verify` flash at the end)
-6. Have these prompts pasted and ready:
+4. Have these prompts pasted and ready:
    - `Using the o2c-ops MCP tools only: what needs attention in our order pipeline right now?`
    - `Using o2c-ops MCP tools only: why is order ORD-1102 stuck? Diagnose it, then fix it.`
    - `Using o2c-ops MCP tools only: a customer says they were charged for ORD-1107 but it shows unpaid. Investigate carefully — do not double-charge them.`
@@ -23,7 +34,7 @@ Record with Loom / OBS. Speak naturally; use the lines below as a teleprompter, 
 
 ### 0:00–0:45 — Problem, user, and product bet
 
-**[Screen: README title + architecture diagram; highlight Hosted MCP URL]**
+**[Screen: README title + architecture diagram; highlight Hosted MCP URL `https://o2c-mcp.onrender.com/mcp`]**
 
 Hi — I’m Aryan. This is an AI-native Order-to-Cash ops tool for an e-commerce operations team.
 
@@ -31,7 +42,7 @@ Today, when payments stick, shipments never get created, invoices are wrong, or 
 
 The product surface is not a custom chat UI — it’s a remotely hosted MCP server. Any MCP client can connect. Cursor is what I’ll use in this demo.
 
-Here’s the hosted MCP URL reviewers can hit without cloning the repo — Streamable HTTP over HTTPS. Behind it: a TypeScript MCP server, a NestJS backend, and Postgres with synthetic broken orders.
+Here’s the hosted MCP URL reviewers can hit without cloning the repo — `https://o2c-mcp.onrender.com/mcp` — Streamable HTTP over HTTPS on Render. Behind it: a TypeScript MCP server, a NestJS backend at `o2c-backend-idlu.onrender.com`, and Postgres with synthetic broken orders.
 
 ---
 
@@ -63,7 +74,7 @@ That summary is the ops homepage. Next we drill into one order.
 
 ### 2:25–3:25 — Workflow part 2: diagnose, then fix
 
-**[Screen: Paste prompt 2 for ORD-1102. Point at `diagnose_order`, then `create_shipment`]*
+**[Screen: Paste prompt 2 for ORD-1102. Point at `diagnose_order`, then `create_shipment`]**
 
 Second prompt: why is ORD-1102 stuck — diagnose, then fix.
 
@@ -77,7 +88,7 @@ After the fix, the order should move into fulfillment — ops just resolved a th
 
 ### 3:25–4:15 — Safety judgment (second scenario)
 
-**[Screen: Paste prompt 3 for ORD-1107. Point at `reconcile_payment`, not blind `retry_payment`]*
+**[Screen: Paste prompt 3 for ORD-1107. Point at `reconcile_payment`, not blind `retry_payment`]**
 
 Quick second path — this is the safety decision I care about most.
 
@@ -93,7 +104,7 @@ If it calls reconcile and marks the order paid from the gateway record, that’s
 
 **[Screen: flash PRODUCT.md headings, then terminal with health + verify]**
 
-To close: assumptions and exclusions are in PRODUCT.md — no frontend, no real payment gateway, no auth for this slice. Hosting for review is Render (`*.onrender.com`); Cloudflare tunnels remain a local fallback.
+To close: assumptions and exclusions are in PRODUCT.md — no frontend, no real payment gateway, no auth for this slice. Hosting for review is Render: MCP at `https://o2c-mcp.onrender.com/mcp`, backend at `https://o2c-backend-idlu.onrender.com`. Free tier may cold-start; first request can take about a minute.
 
 I verified the important path with a focused script — health, summary, diagnose, MCP initialize, a write path, and audit — against both localhost and the hosted URL.
 
@@ -105,7 +116,7 @@ Thanks for watching — happy to go deeper on any tradeoff.
 
 ## On-screen checklist (don’t skip)
 
-- [ ] Hosted URL visible (not only localhost)
+- [ ] Hosted URL visible: `https://o2c-mcp.onrender.com/mcp` (not only localhost)
 - [ ] MCP tool call visible in agent trace (`ops_summary` / `diagnose_order`)
 - [ ] Diagnose before mutate
 - [ ] Write includes `reason`
@@ -118,4 +129,4 @@ Drop the ORD-1107 section; keep summary → ORD-1102 diagnose/fix → close with
 
 ## After recording
 
-Email: Loom link, hosted MCP URL, repo URL, note that the tunnel must stay up during review (or Render URL if deployed).
+Email: Loom link, hosted MCP URL (`https://o2c-mcp.onrender.com/mcp`), repo URL. Note free Render cold starts (~30–60s on first hit after idle).

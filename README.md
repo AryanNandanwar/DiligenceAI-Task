@@ -114,7 +114,7 @@ The MCP server speaks Streamable HTTP at `http://localhost:3001/mcp` (or the hos
   "mcpServers": {
     "o2c-ops": {
       "command": "npx",
-      "args": ["mcp-remote", "https://mcp.yourdomain.com/mcp"]
+      "args": ["mcp-remote", "https://o2c-mcp.onrender.com/mcp"]
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "o2c-ops": {
-      "url": "https://outline-breakdown-receiving-rendered.trycloudflare.com/mcp"
+      "url": "https://o2c-mcp.onrender.com/mcp"
     }
   }
 }
