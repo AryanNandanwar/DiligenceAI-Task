@@ -55,7 +55,6 @@ MCP_URL=https://o2c-mcp.onrender.com ./scripts/verify-workflow.sh
 |---|---|
 | [`PRODUCT.md`](./PRODUCT.md) | Decisions, assumptions, exclusions, safety, tradeoffs |
 | [`AI_WORKLOG.md`](./AI_WORKLOG.md) | Models, prompts, human/AI split, corrections, verification |
-| [`DEMO.md`](./DEMO.md) | 4–5 minute async video checklist |
 | [`scripts/verify-workflow.sh`](./scripts/verify-workflow.sh) | Focused runtime verification |
 
 ## Architecture
@@ -222,7 +221,6 @@ scripts/
   config.example.yml      # named-tunnel config shape (real config is gitignored)
 PRODUCT.md        # decisions, assumptions, exclusions
 AI_WORKLOG.md     # AI tools, corrections, verification
-DEMO.md           # async video checklist
 render.yaml       # Render Blueprint (preferred hosted deploy)
 docker-compose.yml
 ```
